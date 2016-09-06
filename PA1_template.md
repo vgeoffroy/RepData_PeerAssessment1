@@ -65,7 +65,7 @@ hist(Total,
      main = "Histogram of the total number of steps per day")
 ```
 
-![](PA1_template_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](figures/unnamed-chunk-6-1.png)
 
 #### 3) Calculate and report the mean and median of the total number of steps taken per day.
 
@@ -107,7 +107,7 @@ plot(Table_No_NA$Inter,
      main = "Average number of steps taken across all days")
 ```
 
-![](PA1_template_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](figures/unnamed-chunk-9-1.png)
 
 #### 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
@@ -192,7 +192,7 @@ hist(Total2,
      main = "Histogram of the total number of steps per day")
 ```
 
-![](PA1_template_files/figure-markdown_github/unnamed-chunk-15-1.png)
+![](figures/unnamed-chunk-15-1.png)
 
 The mean of the total number of steps taken per day:
 
@@ -288,6 +288,6 @@ plot(INT2,
      type = "l")
 ```
 
-![](PA1_template_files/figure-markdown_github/unnamed-chunk-20-1.png)
+![](figures/unnamed-chunk-20-1.png)
 
 One may notice that during the weekdays, the test object is very active earlier in the days. Nevertheless, the object is clearly more active throughout the weekends than throughout the weekdays.
