@@ -1,25 +1,227 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "REPRODUCIBLE RESEARCH COURSE PROJECT 1"
+output: html_document
+# output: md_document
 ---
 
+### <b> Loading and preprocessing the data: </b>
 
-## Loading and preprocessing the data
+The data is loaded:
 
+```{r}
+setwd("C:/Users/VAL/Documents/The Johns Hopkins University/R/Assignment_7")
+Activity <- read.csv("activity.csv")
+```
 
+The data is summarized:
+```{r}
+summary(Activity)
+```
 
-## What is mean total number of steps taken per day?
+### <b> What is mean total number of steps taken per day? </b>
 
+For this section, the missing values are ignored.
 
+```{r}
+Act_No_NA <- Activity[!is.na(Activity$steps),]
+```
 
-## What is the average daily activity pattern?
+#### 1) Calculate the total number of steps taken per day.
 
+```{r}
+Total = as.numeric()
+j = 0
+for (i in unique(Act_No_NA$date))
+{
+        j = j+1
+        Total[j] = sum(Act_No_NA[Act_No_NA$date == i, ]$steps)
+}
+```
 
+The total number of steps taken per day looks like:
+```{r}
+head(data.frame(Days = unique(Act_No_NA$date), Total.number.of.steps = Total))
+```
 
-## Imputing missing values
+#### 2) Make a histogram of the total number of steps taken each day.
 
+```{r}
+hist(Total,
+     10,
+     xlab = "Total number of steps per day", 
+     main = "Histogram of the total number of steps per day")
+```
 
+#### 3) Calculate and report the mean and median of the total number of steps taken per day.
 
-## Are there differences in activity patterns between weekdays and weekends?
+The mean of the total number of steps taken per day:
+```{r}
+mean(Total)
+```
+
+The median of the total number of steps taken per day:
+```{r}
+median(Total)
+```
+
+### <b> What is the average daily activity pattern? </b>
+
+#### 1) Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis).
+
+```{r}
+Average = as.numeric()
+Inter = as.numeric()
+for (h in 0:471)
+{
+        Inter[h+1] <- 5*h
+        Average[h+1] <- mean(Act_No_NA[Act_No_NA$interval == 5*h,]$steps)
+}
+Table <- data.frame(Inter, Average)
+Table_No_NA <- Table[!is.na(Table$Average),]
+plot(Table_No_NA$Inter, 
+     Table_No_NA$Average, 
+     type = "l",
+     xlab = "5-minute interval",
+     ylab = "Average number of steps taken",
+     main = "Average number of steps taken across all days")
+```
+
+#### 2) Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+The maximum number of steps in a 5-minute interval averaged on all days:
+```{r}
+Table_No_NA[which.max(Table_No_NA$Average), ]$Inter
+```
+
+### <b> Imputing missing values: </b>
+
+#### 1) Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
+
+```{r}
+nrow(Activity[is.na(Activity), ])
+```
+
+#### 2) Devise a strategy for filling in all of the missing values in the dataset. 
+Before the substitution, the data looked like:
+```{r}
+head(Activity)
+```
+
+I choose the mean for a 5-minute interval to replace missing values.
+
+```{r}
+for (i in 1:nrow(Activity))
+{
+        if (is.na(Activity$steps[i]))
+        {
+                Int <- Activity$interval[i]
+                Av <- Table_No_NA[Table_No_NA$Inter == Int,]$Average
+                Activity$steps[i] = Av
+        }
+}
+```
+
+#### 3) Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+After the substitution, the data look like:
+```{r}
+head(Activity)
+```
+
+#### 4) Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+```{r}
+Total2 = as.numeric()
+j = 0
+for (i in unique(Activity$date))
+{
+        j = j+1
+        Total2[j] = sum(Activity[Activity$date == i, ]$steps)
+}
+
+hist(Total2,
+     10,
+     xlab = "Total number of steps per day", 
+     main = "Histogram of the total number of steps per day")
+```
+
+The mean of the total number of steps taken per day:
+```{r}
+mean(Total2)
+```
+
+The median of the total number of steps taken per day:
+```{r}
+median(Total2)
+```
+
+The mean does not differ from the estimate from the first part of the assignment. Nevertheless, the median differs from the first part of the assignement. As a consequence, imputing missing values in the data changes the median of the total daily number of steps. One may notice that in such a case, both the mean and the median are the same.
+
+### <b> Are there differences in activity patterns between weekdays and weekends? </b>
+
+#### 1) Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+
+```{r}
+for (i in 1:nrow(Activity))
+{
+        if (weekdays(as.Date(Activity$date[i])) == "Saturday")
+        {
+                Activity[i,4] <- "Weekdend"
+        }else if (weekdays(as.Date(Activity$date[i])) == "Sunday")
+        {
+                Activity[i,4] <- "Weekend"
+        }else{
+                Activity[i,4] <- "Weekday"
+        }
+}
+
+names(Activity)[4] <- "Days"
+```
+
+THe new dataset looks like:
+```{r}
+head(Activity)
+```
+
+#### 2) Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```{r}
+par(mfrow = c(1, 2))
+
+WE <- Activity[Activity$Days == "Weekend",]
+WD <- Activity[Activity$Days == "Weekday",]
+
+MWE <- as.numeric(); MWD <- as.numeric()
+
+INT <- unique(Activity[Activity$Days == "Weekdend",]$interval)
+j = 0
+for (i in 1:length(INT))
+{
+        j = j+1
+        MWE[j] <- mean(WE[WE$interval == INT[i],]$steps)
+}
+
+plot(INT, 
+     MWE, 
+     xlab = "5-minute interval", 
+     ylab = "Average number of steps taken", 
+     main = "Average across weekend days",
+     type = "l")
+
+INT2 <- unique(Activity[Activity$Days == "Weekday",]$interval)
+j = 0
+for (i in 1:length(INT2))
+{
+        j = j+1
+        MWD[j] <- mean(WD[WD$interval == INT2[i],]$steps)
+}
+
+plot(INT2, 
+     MWD, 
+     xlab = "5-minute interval", 
+     ylab = "Average number of steps taken", 
+     main = "Average across weekday days",
+     type = "l")
+```
+
+One may notice that during the weekdays, the test object is very active earlier in the days. Nevertheless, the object is clearly more active throughout the weekends than throughout the weekdays.
